@@ -1,0 +1,85 @@
+name: PHP Composer
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        php: [ '8.0' ]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup PHP
+      # To automatically get bug fixes and new Php versions for shivammathur/setup-php,
+      # change this to (see https://github.com/shivammathur/setup-php#bookmark-versioning):
+      # uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28
+      uses: shivammathur/setup-php@v2
+      with:
+        coverage: "none"
+        ini-values: "memory_limit=-1"
+        php-version: "${{ matrix.php }}"
+      env:
+        fail-fast: true
+        update: true
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+      
+    - name: Get composer cache directory
+      id: composercache
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.composercache.outputs.dir }}
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run:  composer install --prefer-dist --no-progress
+      
+    - name: Lint PHP files
+      run: vendor/bin/phplint
+
+    - name: Run ECS
+      run: vendor/bin/ecs check src tests --config ecs.php --no-progress-bar --ansi
+
+    - name: Run PHPStan
+      run: vendor/bin/phpstan analyse src tests
+
+    - name: Run tests
+      run: vendor/bin/phpunit
+
+    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
+    # Docs: https://getcomposer.org/doc/articles/scripts.md
+
+    # - name: Run test suite
+    #   run: composer run-script test
+    
+    #- name: Create Database
+    #  run: |
+    #    mkdir -p data
+    #    touch data/database.sqlite
+    #- name: Execute tests (Unit and Feature tests) via PHPUnit
+    #  env:
+    #    DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
+    #  run: vendor/bin/phpunit
+    
+
+            
