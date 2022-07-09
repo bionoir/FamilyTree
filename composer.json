@@ -1,5 +1,7 @@
 {
+    "name": "bionoir/familytree",
     "type": "project",
+    "description": "Project for family tree management and displaying",
     "license": "proprietary",
     "minimum-stability": "stable",
     "prefer-stable": true,
@@ -45,6 +47,8 @@
         "twig/twig": "^2.12|^3.0"
     },
     "require-dev": {
+        "overtrue/phplint": "^4.0",
+        "phpstan/phpstan": "^1.8",
         "phpunit/phpunit": "^9.5",
         "symfony/browser-kit": "6.0.*",
         "symfony/css-selector": "6.0.*",
@@ -52,7 +56,8 @@
         "symfony/maker-bundle": "^1.0",
         "symfony/phpunit-bridge": "^6.1",
         "symfony/stopwatch": "6.0.*",
-        "symfony/web-profiler-bundle": "6.0.*"
+        "symfony/web-profiler-bundle": "6.0.*",
+        "symplify/easy-coding-standard": "^11.0"
     },
     "config": {
         "allow-plugins": {
